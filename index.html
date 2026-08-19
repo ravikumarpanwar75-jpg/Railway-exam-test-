@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NTPC GK + GS PYQ Test</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f1f5f9;
+  color:#172033;
+}
+
+header{
+  background:#1e3a8a;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+header h1{
+  margin:0;
+  font-size:25px;
+}
+
+header p{
+  margin:7px 0 0;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  margin-bottom:20px;
+  box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+select,button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  border-radius:9px;
+  border:1px solid #d1d5db;
+  font-size:16px;
+}
+
+button{
+  cursor:pointer;
+}
+
+.start{
+  background:#2563eb;
+  color:white;
+  border:none;
+  font-weight:bold;
+}
+
+.option{
+  background:white;
+  text-align:left;
+}
+
+.option:hover{
+  background:#eff6ff;
+}
+
+.selected{
+  background:#dbeafe !important;
+  border:2px solid #2563eb;
+}
+
+.hidden{
+  display:none;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.badge{
+  background:#e0e7ff;
+  color:#3730a3;
+  padding:8px;
+  border-radius:8px;
+}
+
+.timer{
+  background:#fee2e2;
+  color:#b91c1c;
+  padding:8px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+}
+
+.nav button{
+  flex:1;
+}
+
+.submit{
+  background:#dc2626;
+  color:white;
+  border:none;
+}
+
+.result{
+  text-align:center;
+}
+
+.score{
+  font-size:45px;
+  font-weight:bold;
+  color:#2563eb;
+}
+
+.review{
+  text-align:left;
+  margin-top:20px;
+}
+
+.review div{
+  padding:15px;
+  border-bottom:1px solid #ddd;
+}
+
+.correct{
+  color:#15803d;
+}
+
+.wrong{
+  color:#dc2626;
+}
+
+@media(max-width:600px){
+  .container{
+    padding:10px;
+  }
+
+  header h1{
+    font-size:20px;
+  }
+
+  .topbar{
+    font-size:13px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🚆 NTPC GK + GS PYQ PLATFORM</h1>
+<p>2024 • 2025 • 2026 | Test • Practice • Result</p>
+</header>
+
+<div class="container">
+
+<!-- HOME -->
+
+<div id="home" class="card">
+
+<h2>📚 Test चुनें</h2>
+
+<label>Year</label>
+
+<select id="year">
+<option value="all">All Years</option>
+<option value="2026">2026</option>
+<option value="2025">2025</option>
+<option value="2024">2024</option>
+</select>
+
+<label>Subject</label>
+
+<select id="subject">
+<option value="all">GK + GS</option>
+<option value="GK">GK</option>
+<option value="GS">GS</option>
+</select>
+
+<label>Topic</label>
+
+<select id="topic">
+
+<option value="all">All Topics</option>
+
+<option value="History">History</option>
+<option value="Polity">Polity</option>
+<option value="Geography">Geography</option>
+<option value="Economy">Economy</option>
+
+<option value="Physics">Physics</option>
+<option value="Chemistry">Chemistry</option>
+<option value="Biology">Biology</option>
+<option value="Environment">Environment</option>
+
+</select>
+
+<button class="start" onclick="startTest()">
+🚀 START TEST
+</button>
+
+</div>
+
+
+<!-- TEST -->
+
+<div id="test" class="card hidden">
+
+<div class="topbar">
+
+<span class="badge" id="questionNumber">
+Question 1
+</span>
+
+<span class="timer" id="timer">
+10:00
+</span>
+
+</div>
+
+<h3 id="question"></h3>
+
+<div id="options"></div>
+
+<div class="nav">
+
+<button onclick="previousQuestion()">
+⬅ Previous
+</button>
+
+<button onclick="nextQuestion()">
+Next ➡
+</button>
+
+</div>
+
+<button class="submit" onclick="finishTest()">
+🏁 Submit Test
+</button>
+
+</div>
+
+
+<!-- RESULT -->
+
+<div id="result" class="card result hidden">
+
+<h2>🎉 Test Result</h2>
+
+<div class="score" id="score">
+0/0
+</div>
+
+<p id="accuracy"></p>
+
+<button class="start" onclick="location.reload()">
+🔄 फिर से Test दें
+</button>
+
+<div class="review" id="review"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   QUESTION DATABASE
+========================= */
+
+const questions = [
+
+{
+year:"2025",
+subject:"GK",
+topic:"Polity",
+
+question:"भारतीय संविधान को कब अपनाया गया था?",
+
+options:[
+"15 अगस्त 1947",
+"26 नवंबर 1949",
+"26 जनवरी 1950",
+"9 दिसंबर 1946"
+],
+
+answer:1,
+
+explanation:
+"संविधान सभा ने भारतीय संविधान को 26 नवंबर 1949 को अपनाया था।"
+},
+
+
+{
+year:"2025",
+subject:"GK",
+topic:"History",
+
+question:"भारतीय राष्ट्रीय कांग्रेस की स्थापना किस वर्ष हुई?",
+
+options:[
+"1885",
+"1905",
+"1919",
+"1947"
+],
+
+answer:0,
+
+explanation:
+"भारतीय राष्ट्रीय कांग्रेस की स्थापना 1885 में हुई थी।"
+},
+
+
+{
+year:"2024",
+subject:"GK",
+topic:"Geography",
+
+question:"क्षेत्रफल की दृष्टि से भारत का सबसे बड़ा राज्य कौन सा है?",
+
+options:[
+"मध्य प्रदेश",
+"राजस्थान",
+"महाराष्ट्र",
+"उत्तर प्रदेश"
+],
+
+answer:1,
+
+explanation:
+"राजस्थान क्षेत्रफल की दृष्टि से भारत का सबसे बड़ा राज्य है।"
+},
+
+
+{
+year:"2024",
+subject:"GS",
+topic:"Physics",
+
+question:"बल की SI इकाई क्या है?",
+
+options:[
+"जूल",
+"वाट",
+"न्यूटन",
+"पास्कल"
+],
+
+answer:2,
+
+explanation:
+"बल की SI इकाई न्यूटन है।"
+},
+
+
+{
+year:"2025",
+subject:"GS",
+topic:"Chemistry",
+
+question:"जल का रासायनिक सूत्र क्या है?",
+
+options:[
+"CO₂",
+"H₂O",
+"O₂",
+"NaCl"
+],
+
+answer:1,
+
+explanation:
+"जल का रासायनिक सूत्र H₂O है।"
+},
+
+
+{
+year:"2026",
+subject:"GS",
+topic:"Biology",
+
+question:"मानव शरीर में रक्त को पंप करने वाला अंग कौन सा है?",
+
+options:[
+"फेफड़ा",
+"यकृत",
+"हृदय",
+"गुर्दा"
+],
+
+answer:2,
+
+explanation:
+"हृदय रक्त को पूरे शरीर में पंप करता है।"
+},
+
+
+{
+year:"2026",
+subject:"GK",
+topic:"Economy",
+
+question:"भारत का केंद्रीय बैंक कौन सा है?",
+
+options:[
+"SBI",
+"RBI",
+"SEBI",
+"NABARD"
+],
+
+answer:1,
+
+explanation:
+"भारतीय रिजर्व बैंक भारत का केंद्रीय बैंक है।"
+},
+
+
+{
+year:"2026",
+subject:"GS",
+topic:"Environment",
+
+question:"ओजोन परत मुख्यतः किस मंडल में पाई जाती है?",
+
+options:[
+"क्षोभमंडल",
+"समतापमंडल",
+"आयनमंडल",
+"बहिर्मंडल"
+],
+
+answer:1,
+
+explanation:
+"ओजोन की प्रमुख सांद्रता समतापमंडल में होती है।"
+},
+
+
+{
+year:"2025",
+subject:"GK",
+topic:"History",
+
+question:"प्रारूप समिति के अध्यक्ष कौन थे?",
+
+options:[
+"राजेंद्र प्रसाद",
+"बी. आर. अंबेडकर",
+"जवाहरलाल नेहरू",
+"बी. एन. राव"
+],
+
+answer:1,
+
+explanation:
+"डॉ. बी. आर. अंबेडकर प्रारूप समिति के अध्यक्ष थे।"
+},
+
+
+{
+year:"2024",
+subject:"GS",
+topic:"Physics",
+
+question:"निर्वात में प्रकाश की चाल लगभग कितनी होती है?",
+
+options:[
+"3×10⁸ m/s",
+"3×10⁶ m/s",
+"3×10⁴ m/s",
+"3×10² m/s"
+],
+
+answer:0,
+
+explanation:
+"निर्वात में प्रकाश की चाल लगभग 3×10⁸ मीटर/सेकंड होती है।"
+}
+
+];
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+let testQuestions=[];
+
+let current=0;
+
+let answers=[];
+
+let time=600;
+
+let timer;
+
+
+/* =========================
+   START TEST
+========================= */
+
+function startTest(){
+
+let year=
+document.getElementById("year").value;
+
+let subject=
+document.getElementById("subject").value;
+
+let topic=
+document.getElementById("topic").value;
+
+
+testQuestions=questions.filter(q=>{
+
+return
+
+(year==="all" || q.year===year)
+
+&&
+
+(subject==="all" || q.subject===subject)
+
+&&
+
+(topic==="all" || q.topic===topic);
+
+});
+
+
+if(testQuestions.length===0){
+
+alert(
+"इस selection के लिए अभी questions उपलब्ध नहीं हैं।"
+);
+
+return;
+
+}
+
+
+answers=
+new Array(testQuestions.length).fill(null);
+
+current=0;
+
+time=600;
+
+
+document.getElementById("home")
+.classList.add("hidden");
+
+document.getElementById("result")
+.classList.add("hidden");
+
+document.getElementById("test")
+.classList.remove("hidden");
+
+
+clearInterval(timer);
+
+timer=setInterval(updateTimer,1000);
+
+showQuestion();
+
+}
+
+
+/* =========================
+   SHOW QUESTION
+========================= */
+
+function showQuestion(){
+
+let q=testQuestions[current];
+
+
+document.getElementById("questionNumber")
+.innerText=
+"Question "+
+(current+1)+
+" / "+
+testQuestions.length;
+
+
+document.getElementById("question")
+.innerText=
+q.question;
+
+
+let html="";
+
+
+q.options.forEach((option,index)=>{
+
+html+=`
+
+<button
+class="option ${
+answers[current]===index
+?"selected":""
+}"
+
+onclick="selectAnswer(${index})">
+
+${String.fromCharCode(65+index)}.
+${option}
+
+</button>
+
+`;
+
+});
+
+
+document.getElementById("options")
+.innerHTML=html;
+
+}
+
+
+/* =========================
+   SELECT ANSWER
+========================= */
+
+function selectAnswer(index){
+
+answers[current]=index;
+
+showQuestion();
+
+}
+
+
+/* =========================
+   NEXT
+========================= */
+
+function nextQuestion(){
+
+if(current <
+testQuestions.length-1){
+
+current++;
+
+showQuestion();
+
+}
+
+}
+
+
+/* =========================
+   PREVIOUS
+========================= */
+
+function previousQuestion(){
+
+if(current>0){
+
+current--;
+
+showQuestion();
+
+}
+
+}
+
+
+/* =========================
+   TIMER
+========================= */
+
+function updateTimer(){
+
+time--;
+
+let minutes=
+Math.floor(time/60);
+
+let seconds=
+time%60;
+
+
+document.getElementById("timer")
+.innerText=
+
+String(minutes).padStart(2,"0")
++
+":"
++
+String(seconds).padStart(2,"0");
+
+
+if(time<=0){
+
+finishTest();
+
+}
+
+}
+
+
+/* =========================
+   FINISH TEST
+========================= */
+
+function finishTest(){
+
+clearInterval(timer);
+
+
+let correct=0;
+
+let attempted=0;
+
+
+testQuestions.forEach((q,index)=>{
+
+if(answers[index]!==null){
+
+attempted++;
+
+}
+
+
+if(answers[index]===q.answer){
+
+correct++;
+
+}
+
+});
+
+
+let percentage=
+attempted===0
+?0
+:Math.round(
+(correct/attempted)*100
+);
+
+
+document.getElementById("test")
+.classList.add("hidden");
+
+
+document.getElementById("result")
+.classList.remove("hidden");
+
+
+document.getElementById("score")
+.innerText=
+correct+
+" / "+
+testQuestions.length;
+
+
+document.getElementById("accuracy")
+.innerText=
+
+"Attempted: "+
+attempted+
+" | Accuracy: "+
+percentage+
+"%";
+
+
+showReview();
+
+}
+
+
+/* =========================
+   REVIEW
+========================= */
+
+function showReview(){
+
+let html="";
+
+
+testQuestions.forEach((q,index)=>{
+
+let user=
+answers[index];
+
+let correct=
+user===q.answer;
+
+
+html+=`
+
+<div>
+
+<b>
+Q${index+1}. ${q.question}
+</b>
+
+<br><br>
+
+आपका उत्तर:
+
+<span class="${
+correct
+?"correct"
+:"wrong"
+}">
+
+${
+user===null
+?"छोड़ा"
+:q.options[user]
+}
+
+</span>
+
+<br>
+
+सही उत्तर:
+
+<b class="correct">
+
+${q.options[q.answer]}
+
+</b>
+
+<br><br>
+
+💡 ${q.explanation}
+
+</div>
+
+`;
+
+});
+
+
+document.getElementById("review")
+.innerHTML=html;
+
+}
+
+</script>
+
+</body>
+</html>
