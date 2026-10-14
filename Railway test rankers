@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozgarapinew - Auto PDF Test Maker</title>
+    <!-- PDF.js library for reading PDF text -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #5b4ed6;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 650px;
+            margin: 20px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .pdf-box {
+            background: #eef0ff;
+            border: 2px dashed #5b4ed6;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .btn {
+            background: #5b4ed6;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .btn-green {
+            background: #28a745;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .question-card {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+        }
+        .option-btn.selected {
+            background: #5b4ed6;
+            color: white;
+            border-color: #5b4ed6;
+        }
+        .timer {
+            background: #eef0ff;
+            color: #5b4ed6;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">Rozgarapinew - Auto PDF Test Maker</div>
+
+    <!-- 1. एडमिन और PDF अपलोड स्क्रीन -->
+    <div class="container" id="admin-screen">
+        <h2>📄 PDF अपलोड करके टेस्ट बनाएं</h2>
+        
+        <div class="pdf-box">
+            <label for="pdf-file" style="font-weight: bold; cursor: pointer;">
+                📂 यहाँ अपनी PDF फ़ाइल चुनें
+            </label><br><br>
+            <input type="file" id="pdf-file" accept="application/pdf" onchange="processPDF(this)">
+            <p id="pdf-status" style="color: #666; margin-top: 10px; font-size: 14px;"></p>
+        </div>
+
+        <hr style="margin: 20px 0;">
+
+        <h3>या मैन्युअल रूप से प्रश्न जोड़ें:</h3>
+        <div class="input-group">
+            <label>प्रश्न दर्ज करें:</label>
+            <input type="text" id="q-text" placeholder="उदा. भारत की राजधानी क्या है?">
+        </div>
+        <div class="input-group">
+            <label>विकल्प A:</label> <input type="text" id="opt-0">
+        </div>
+        <div class="input-group">
+            <label>विकल्प B:</label> <input type="text" id="opt-1">
+        </div>
+        <div class="input-group">
+            <label>विकल्प C:</label> <input type="text" id="opt-2">
+        </div>
+        <div class="input-group">
+            <label>विकल्प D:</label> <input type="text" id="opt-3">
+        </div>
+        <div class="input-group">
+            <label>सही उत्तर:</label>
+            <select id="correct-opt">
+                <option value="0">विकल्प A</option>
+                <option value="1">विकल्प B</option>
+                <option value="2">विकल्प C</option>
+                <option value="3">विकल्प D</option>
+            </select>
+        </div>
+        <button class="btn" onclick="addManualQuestion()">+ प्रश्न जोड़ें</button>
+
+        <hr style="margin: 20px 0;">
+
+        <h3>कुल जोड़े गए प्रश्न (<span id="q-count">0</span>):</h3>
+        <div id="questions-list"></div>
+
+        <button class="btn btn-green" id="start-test-btn" style="display: none;" onclick="goToLogin()">टेस्ट चालू करें 🚀</button>
+    </div>
+
+    <!-- 2. स्टूडेंट लॉगिन -->
+    <div class="container" id="login-screen" style="display: none;">
+        <h2>स्टूडेंट विवरण</h2>
+        <div class="input-group">
+            <label>आपका नाम:</label>
+            <input type="text" id="student-name" placeholder="नाम दर्ज करें">
+        </div>
+        <button class="btn" onclick="startTest()">टेस्ट शुरू करें</button>
+    </div>
+
+    <!-- 3. क्विज़ स्क्रीन -->
+    <div class="container" id="quiz-screen" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span id="display-name" style="font-weight: bold;"></span>
+            <span class="timer" id="timer">समय: 08:00</span>
+        </div>
+
+        <h3 id="question-title"></h3>
+        <div id="options-box"></div>
+
+        <button class="btn" onclick="nextQuestion()">अगला प्रश्न</button>
+    </div>
+
+    <!-- 4. रिजल्ट स्क्रीन -->
+    <div class="container" id="result-screen" style="display: none; text-align: center;">
+        <h2>परिणाम (Result) 🎉</h2>
+        <p>छात्र: <strong id="res-student"></strong></p>
+        <p>कुल प्रश्न: <strong id="res-total"></strong></p>
+        <p style="color: green;">सही: <strong id="res-correct"></strong></p>
+        <p style="color: red;">गलत: <strong id="res-wrong"></strong></p>
+        <h2 style="color: #5b4ed6;" id="res-score"></h2>
+
+        <button class="btn" onclick="location.reload()">नया टेस्ट बनाएं</button>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        let questions = [];
+        let currentIndex = 0;
+        let selectedOpt = null;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let studentName = "";
+
+        // PDF फ़ाइल प्रोसेस करने का फ़ंक्शन
+        async function processPDF(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            document.getElementById("pdf-status").innerText = "PDF पढ़ी जा रही है, कृपया प्रतीक्षा करें...";
+            
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                const typedarray = new Uint8Array(this.result);
+                const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                
+                let fullText = "";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(" ");
+                    fullText += pageText + "\n";
+                }
+
+                parseQuestionsFromText(fullText);
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        // टेक्स्ट से अपने आप प्रश्न और विकल्प अलग करना
+        function parseQuestionsFromText(text) {
+            // मान लें कि प्रश्न "Q1.", "1.", या "Q." से शुरू होते हैं
+            const lines = text.split('\n');
+            let tempQuestion = null;
+
+            // बेसिक ऑटो-पार्सिंग लॉजिक
+            text.replace(/(?:Q\d+\.|\d+\.)\s*(.*?)(?=(?:Q\d+\.|\d+\.|$))/gs, (match) => {
+                let parts = match.split(/(?=\([A-D]\)|[A-D]\))/);
+                if (parts.length >= 5) {
+                    let qText = parts[0].trim();
+                    let opt0 = parts[1] ? parts[1].replace(/\([A-D]\)|[A-D]\)/, '').trim() : "विकल्प A";
+                    let opt1 = parts[2] ? parts[2].replace(/\([A-D]\)|[A-D]\)/, '').trim() : "विकल्प B";
+                    let opt2 = parts[3] ? parts[3].replace(/\([A-D]\)|[A-D]\)/, '').trim() : "विकल्प C";
+                    let opt3 = parts[4] ? parts[4].replace(/\([A-D]\)|[A-D]\)/, '').trim() : "विकल्प D";
+
+                    questions.push({
+                        question: qText,
+                        options: [opt0, opt1, opt2, opt3],
+                        answer: 0 // डिफॉल्ट रूप से A (आप बाद में बदल सकते हैं)
+                    });
+                }
+            });
+
+            if (questions.length > 0) {
+                document.getElementById("pdf-status").innerText = `सफलतापूर्वक ${questions.length} प्रश्न ऑटो-लोड हो गए!`;
+            } else {
+                document.getElementById("pdf-status").innerText = "PDF से स्वचालित प्रश्न नहीं बन सके। कृपया नीचे मैन्युअल रूप से जोड़ें।";
+            }
+
+            renderQuestionsList();
+        }
+
+        function addManualQuestion() {
+            let qText = document.getElementById("q-text").value.trim();
+            let opt0 = document.getElementById("opt-0").value.trim();
+            let opt1 = document.getElementById("opt-1").value.trim();
+            let opt2 = document.getElementById("opt-2").value.trim();
+            let opt3 = document.getElementById("opt-3").value.trim();
+            let correctOpt = parseInt(document.getElementById("correct-opt").value);
+
+            if (!qText || !opt0 || !opt1 || !opt2 || !opt3) {
+                alert("कृपया प्रश्न और चारों विकल्प दर्ज करें!");
+                return;
+            }
+
+            questions.push({
+                question: qText,
+                options: [opt0, opt1, opt2, opt3],
+                answer: correctOpt
+            });
+
+            document.getElementById("q-text").value = "";
+            document.getElementById("opt-0").value = "";
+            document.getElementById("opt-1").value = "";
+            document.getElementById("opt-2").value = "";
+            document.getElementById("opt-3").value = "";
+
+            renderQuestionsList();
+        }
+
+        function renderQuestionsList() {
+            document.getElementById("q-count").innerText = questions.length;
+            let listHTML = "";
+            questions.forEach((q, i) => {
+                listHTML += `<div class="question-card"><strong>Q${i+1}. ${q.question}</strong></div>`;
+            });
+            document.getElementById("questions-list").innerHTML = listHTML;
+
+            if (questions.length > 0) {
+                document.getElementById("start-test-btn").style.display = "block";
+            }
+        }
+
+        function goToLogin() {
+            document.getElementById("admin-screen").style.display = "none";
+            document.getElementById("login-screen").style.display = "block";
+        }
+
+        function startTest() {
+            let name = document.getElementById("student-name").value.trim();
+            if (!name) {
+                alert("कृपया नाम दर्ज करें!");
+                return;
+            }
+            studentName = name;
+            document.getElementById("display-name").innerText = "छात्र: " + studentName;
+
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("quiz-screen").style.display = "block";
+
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            selectedOpt = null;
+            let q = questions[currentIndex];
+            document.getElementById("question-title").innerText = `Q${currentIndex + 1}. ${q.question}`;
+
+            let optHTML = "";
+            q.options.forEach((opt, idx) => {
+                optHTML += `<button class="option-btn" onclick="selectOption(this, ${idx})">${opt}</button>`;
+            });
+            document.getElementById("options-box").innerHTML = optHTML;
+        }
+
+        function selectOption(btn, idx) {
+            let btns = document.querySelectorAll(".option-btn");
+            btns.forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            selectedOpt = idx;
+        }
+
+        function nextQuestion() {
+            if (selectedOpt !== null) {
+                if (selectedOpt === questions[currentIndex].answer) {
+                    correctCount++;
+                } else {
+                    wrongCount++;
+                }
+            }
+
+            currentIndex++;
+            if (currentIndex < questions.length) {
+                loadQuizQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById("quiz-screen").style.display = "none";
+            document.getElementById("result-screen").style.display = "block";
+
+            let totalMarks = (correctCount * 2) - (wrongCount * 0.5);
+
+            document.getElementById("res-student").innerText = studentName;
+            document.getElementById("res-total").innerText = questions.length;
+            document.getElementById("res-correct").innerText = correctCount;
+            document.getElementById("res-wrong").innerText = wrongCount;
+            document.getElementById("res-score").innerText = `कुल अंक: ${totalMarks} / ${questions.length * 2}`;
+        }
+    </script>
+</body>
+</html>
